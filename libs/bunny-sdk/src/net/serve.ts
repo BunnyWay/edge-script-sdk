@@ -108,32 +108,48 @@ type PullZoneHandlerOptions = {
   url: string;
 };
 
+/**
+ * The context for requests being processed.
+ */
 type OriginRequestContext = {
   request: Request;
 };
 
+/**
+ * The context for requests being processed.
+ */
 type OriginResponseContext = {
   request: Request;
   response: Response;
 };
+
+/**
+ * A Middleware for the requests being processed.
+ */
+type OriginRequestMiddleware = (
+  ctx: OriginRequestContext,
+) => Promise<Request> | Promise<Response>;
+
+/**
+ * A Middleware for the requests being processed.
+ */
+type OriginResponseMiddleware = (
+  ctx: OriginResponseContext,
+) => Promise<Response>;
 
 type PullZoneHandler = {
   /**
    * Add a Middleware for the requests being processed.
    */
   onOriginRequest: (
-    middleware: (
-      ctx: OriginRequestContext,
-    ) => Promise<Request> | Promise<Response>,
+    middleware: OriginRequestMiddleware,
   ) => PullZoneHandler;
 
   /**
    * Add a Middleware for the response being processed.
    */
   onOriginResponse: (
-    middleware: (
-      ctx: OriginResponseContext,
-    ) => Promise<Response>,
+    middleware: OriginResponseMiddleware,
   ) => PullZoneHandler;
 };
 
@@ -185,16 +201,8 @@ function servePullZone(
     raw_listener = Tcp.unstable_new();
   }
 
-  const onOriginRequestMiddleware: Array<
-    (
-      ctx: OriginRequestContext,
-    ) => Promise<Request> | Promise<Response> | undefined
-  > = [];
-  const onOriginResponseMiddleware: Array<
-    (
-      ctx: OriginResponseContext,
-    ) => Promise<Response> | undefined
-  > = [];
+  const onOriginRequestMiddleware: Array<OriginRequestMiddleware> = [];
+  const onOriginResponseMiddleware: Array<OriginResponseMiddleware> = [];
 
   const platform = internal_getPlatform();
 
@@ -302,4 +310,13 @@ function servePullZone(
   return pullzoneHandler;
 }
 
-export { serve, ServeHandler, servePullZone, ServerHandler };
+export {
+  serve,
+  ServeHandler,
+  servePullZone,
+  ServerHandler,
+  OriginRequestContext,
+  OriginResponseContext,
+  OriginRequestMiddleware,
+  OriginResponseMiddleware
+};
