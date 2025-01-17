@@ -16,7 +16,7 @@ export function node_serve(listener: Tcp.TcpListener, handler: ServerHandler): S
   const hostname = Ip.toString(SocketAddr.v4.ip(addr));
 
   const app = new Hono();
-  app.all((c) => {
+  app.all("*", (c) => {
     return handler(c.req.raw);
   })
 
