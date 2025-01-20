@@ -1,5 +1,12 @@
 # example/middleware-simple-http
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [43738c5]
+  - @bunny.net/edgescript-sdk@0.11.3
+
 ## 0.1.2
 
 ### Patch Changes

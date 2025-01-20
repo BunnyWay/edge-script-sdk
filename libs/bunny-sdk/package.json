@@ -1,6 +1,6 @@
 {
   "name": "@bunny.net/edgescript-sdk",
-  "version": "0.11.2",
+  "version": "0.11.3",
   "main": "dist/lib.js",
   "module": "esm/lib.mjs",
   "types": "dist/_tsup-dts-rollup.d.ts",
