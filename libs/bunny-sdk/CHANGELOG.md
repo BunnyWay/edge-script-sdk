@@ -1,5 +1,11 @@
 # @bunny.net/edgescript-sdk
 
+## 0.11.3
+
+### Patch Changes
+
+- 43738c5: Ensure we can access subpath when in local
+
 ## 0.11.2
 
 ### Patch Changes
