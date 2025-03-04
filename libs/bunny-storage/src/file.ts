@@ -103,13 +103,18 @@ export async function get(storageZone: StorageZone.StorageZone, path: string): P
     throw statusCodeToException(storageZone, response.status, path);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawData: { LastChanged?: string, DateCreated?: string } = await response.json() as unknown as any;
   const processedData = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...rawData as unknown as any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     LastChanged: new Date(rawData.LastChanged as unknown as any),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     DateCreated: new Date(rawData.DateCreated as unknown as any)
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result = StorageFileSchemaDescribe.parse(processedData as unknown as any);
 
   return ({
@@ -246,7 +251,7 @@ export async function upload(storageZone: StorageZone.StorageZone, path: string,
   url.pathname = `${url.pathname}${path}`;
 
   const [auth_header, key] = StorageZone.key(storageZone);
-  let headers = {
+  const headers = {
     [auth_header]: key,
     'Content-Type': "application/octet-stream"
   };
@@ -291,7 +296,8 @@ export async function download(storageZone: StorageZone.StorageZone, path: strin
     // TODO: Rework this part
     throw new Error("Response has no body");
   }
-  let stream: ReadableStream<Uint8Array> = response.body as unknown as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const stream: ReadableStream<Uint8Array> = response.body as unknown as any;
 
 
   return ({ stream, response, length: contentLength });
