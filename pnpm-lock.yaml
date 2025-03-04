@@ -82,12 +82,6 @@ importers:
       '@bunny.net/edgescript-sdk':
         specifier: workspace:*
         version: link:../../libs/bunny-sdk
-      '@bunny.net/storage-sdk':
-        specifier: workspace:*
-        version: link:../../libs/bunny-storage
-      zod:
-        specifier: ^3.24.2
-        version: 3.24.2
     devDependencies:
       '@eslint/js':
         specifier: ^9.8.0
