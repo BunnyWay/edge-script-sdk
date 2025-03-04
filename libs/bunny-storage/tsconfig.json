@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "nodenext",
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "noImplicitAny": false,
+    "esModuleInterop": false,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": true,
+    "downlevelIteration": true,
+    "forceConsistentCasingInFileNames": true,
+    "suppressExcessPropertyErrors": false,
+    "declaration": true,
+    "sourceMap": false,
+    "noEmitOnError": false
+  },
+  "exclude": [
+    "dist",
+    "esm",
+    "node_modules",
+    "**/*.test.*"
+  ]
+}
