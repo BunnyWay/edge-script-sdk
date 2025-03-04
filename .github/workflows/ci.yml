@@ -23,3 +23,6 @@ jobs:
 
       - name: 'Test'
         run: pnpm run -r test
+        env:
+          STORAGE_ACCESS_KEY: ${{ secrets.STORAGE_ACCESS_KEY }}
+          STORAGE_ZONE: ${{ secrets.STORAGE_ZONE }}
