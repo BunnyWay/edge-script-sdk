@@ -78,7 +78,7 @@ describe('Integration test with Storage', () => {
       let sz = BunnyStorageSDK.zone.connect_with_accesskey(BunnyStorageSDK.regions.StorageRegion.Falkenstein, sz_zone, access_key);
 
       let list = await BunnyStorageSDK.file.list(sz, "/");
-      expect(list).toMatchSnapshot();
+      expect(list.map(x => x.objectName)).toMatchSnapshot();
     });
   });
   describe('Create', () => {

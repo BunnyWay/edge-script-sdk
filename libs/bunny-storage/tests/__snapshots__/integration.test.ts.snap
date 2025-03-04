@@ -4,22 +4,6 @@ exports[`Integration test with Storage Create Fail to create a proper file with 
 
 exports[`Integration test with Storage List The list should be a single tests forlder 1`] = `
 [
-  {
-    "_tag": "StorageFile",
-    "checksum": null,
-    "contentType": "",
-    "dateCreated": 2025-03-04T13:38:44.155Z,
-    "guid": "7ba935f5-172b-4642-b2e3-aa4d9770da3c",
-    "isDirectory": true,
-    "lastChanged": 2025-03-04T13:38:44.155Z,
-    "length": 0,
-    "objectName": "tests",
-    "path": "/integration-tests-storage-sdk/",
-    "replicatedZones": null,
-    "serverId": 0,
-    "storageZoneId": 916576,
-    "storageZoneName": "integration-tests-storage-sdk",
-    "userId": "31b10f25-ce95-44bb-9874-8c2fe2fe1e9c",
-  },
+  "tests",
 ]
 `;

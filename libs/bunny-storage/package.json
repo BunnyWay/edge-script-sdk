@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "lint": "eslint src",
-    "test": "jest --coverage",
+    "test": "jest --silent --coverage",
     "build": "rm -rf dist esm esm-bunny && node build.mjs",
     "release": "rm -rf dist esm esm-bunny && node build.mjs && pnpm changeset publish && pnpm publish"
   },
