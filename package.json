@@ -5,6 +5,7 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "build": "pnpm run -r build",
+    "test": "pnpm run -r test",
     "release": "pnpm changeset publish && pnpm publish -r",
     "ci:version": "pnpm changeset version && pnpm i --lockfile-only",
     "ci:publish": "./scripts/publish.sh"

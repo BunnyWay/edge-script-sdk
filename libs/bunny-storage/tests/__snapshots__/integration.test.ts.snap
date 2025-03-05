@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Integration test with Storage Create Fail to create a proper file with invalid checksum: invalid_fail_file_1 1`] = `[Error: Unable to upload file. Either invalid path specified, either provided checksum invalid]`;
+
+exports[`Integration test with Storage List The list should be a single tests forlder 1`] = `
+[
+  "tests",
+]
+`;
