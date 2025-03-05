@@ -1,5 +1,11 @@
 # @bunny.net/storage-sdk
 
+## 0.2.1
+
+### Patch Changes
+
+- dc07b56: Update README.md
+
 ## 0.2.0
 
 ### Minor Changes
