@@ -1,5 +1,11 @@
 # @bunny.net/edgescript-sdk
 
+## 0.11.4
+
+### Patch Changes
+
+- 7a5f7b8: Update the export of the package to have a conditional export for Deno
+
 ## 0.11.3
 
 ### Patch Changes
