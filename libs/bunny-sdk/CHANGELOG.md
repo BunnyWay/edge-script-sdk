@@ -1,5 +1,11 @@
 # @bunny.net/edgescript-sdk
 
+## 0.11.5
+
+### Patch Changes
+
+- 05edf67: Update README.md
+
 ## 0.11.4
 
 ### Patch Changes
