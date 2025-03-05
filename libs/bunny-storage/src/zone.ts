@@ -39,7 +39,26 @@ export function key(value: StorageZone): [string, string] {
 }
 
 /**
- * Connect to an associated StorageZone
+ * Connect to an associated [StorageZone]
+ * 
+ * ## Examples
+ *
+ * ### Listing files
+ *
+ * ```typescript
+ *   import * as process from "node:process";
+ *   import * as BunnyStorageSDK from "@bunny.net/storage-sdk";
+ *   
+ *   let sz_zone = process.env.STORAGE_ZONE;
+ *   let access_key = process.env.STORAGE_ACCESS_KEY;
+ *   
+ *   let region = BunnyStorageSDK.regions.StorageRegion.Falkenstein;
+ *   let sz = BunnyStorageSDK.zone.connect_with_accesskey(region, sz_zone, access_key);
+ *   
+ *   let list: BunnyStorageSDK.file.StorageFile[] = await BunnyStorageSDK.file.list(sz, "/");
+ * ```
+ *
+ *
  */
 export function connect_with_accesskey(region: Regions.StorageRegion, name: string, accessKey: string): StorageZone {
   return ({
@@ -49,3 +68,4 @@ export function connect_with_accesskey(region: Regions.StorageRegion, name: stri
     accessKey,
   });
 }
+

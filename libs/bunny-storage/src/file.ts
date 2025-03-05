@@ -86,12 +86,45 @@ export type StorageFile = {
    * The associated content-type of the file.
    */
   contentType: string;
+  /**
+   * Calling this function will fire a Promise that you'll be able to await to
+   * have the stream which will fetch the content of the body of the file you
+   * want.
+   */
+  data: () => Promise<{
+    stream: ReadableStream<Uint8Array>;
+    response: Response;
+    length?: number;
+  }>,
 };
 
 /**
- * Fetch a file from a [StorageZone].
+ * Fetch the metadata of a file from a [StorageZone], to have the data of this
+ * file, you'll need to download it.
+ *
+ * You can download the content of a [StorageFile] by awaitng the `data()`
+ * function of this file.
  *
  * @throws
+ *
+ * ## Example
+ *
+ * ```typescript
+ *   import * as process from "node:process";
+ *   import * as BunnyStorageSDK from "@bunny.net/storage-sdk";
+ *   
+ *   let sz_zone = process.env.STORAGE_ZONE;
+ *   let access_key = process.env.STORAGE_ACCESS_KEY;
+ *   
+ *   let region = BunnyStorageSDK.regions.StorageRegion.Falkenstein;
+ *   let sz = BunnyStorageSDK.zone.connect_with_accesskey(region, sz_zone, access_key);
+ *   
+ *   let file: BunnyStorageSDK.file.StorageFile = await BunnyStorageSDK.file.get(sz, "/somefile");
+ *   // Here the body will be in the `stream` file, you can collect it in whatever
+ *   // way you need.
+ *   // The response will contain the rest of the metadata available.
+ *   let promise_to_fetch_the_file: { stream: ReadableStream<Uint8Array>; response: Response; length?: number; } = await file.data();
+ * ```
  */
 export async function get(storageZone: StorageZone.StorageZone, path: string): Promise<StorageFile> {
   const base_url = StorageZone.addr(storageZone);
@@ -133,6 +166,7 @@ export async function get(storageZone: StorageZone.StorageZone, path: string): P
     checksum: result.Checksum,
     replicatedZones: result.ReplicatedZones,
     contentType: result.ContentType,
+    data: () => download(storageZone, path),
   })
 }
 
@@ -176,6 +210,7 @@ export async function list(storageZone: StorageZone.StorageZone, path: string): 
     checksum: result.Checksum,
     replicatedZones: result.ReplicatedZones,
     contentType: result.ContentType,
+    data: () => download(storageZone, result.Path),
   }));
 }
 

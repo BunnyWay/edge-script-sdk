@@ -1,5 +1,5 @@
 # @bunny.net/storage-sdk
 ---
 
-The `@bunny.net/storage-sdk` library gives you functions and tools you can
-leverage to interact with efficiently with the Bunny Storage.
+The `@bunny.net/storage-sdk` a library designed to help you interact with 
+BunnyCDN Storage API.
