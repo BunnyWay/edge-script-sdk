@@ -127,8 +127,8 @@ export type StorageFile = {
  * ```
  */
 export async function get(storageZone: StorageZone.StorageZone, path: string): Promise<StorageFile> {
-  const base_url = StorageZone.addr(storageZone);
-  const url = new URL(path, base_url);
+  const url = StorageZone.addr(storageZone);
+  url.pathname = `${url.pathname}${path}`;
   const [auth_header, key] = StorageZone.key(storageZone);
   const response = await fetch(url, { method: "DESCRIBE", headers: { 'Accept': 'application/json', [auth_header]: key } });
 
