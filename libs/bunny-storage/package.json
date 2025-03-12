@@ -1,6 +1,6 @@
 {
   "name": "@bunny.net/storage-sdk",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "main": "dist/lib.js",
   "module": "esm/lib.mjs",
   "types": "dist/_tsup-dts-rollup.d.ts",
