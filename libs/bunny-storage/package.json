@@ -2,12 +2,22 @@
   "name": "@bunny.net/storage-sdk",
   "version": "0.2.2",
   "main": "dist/lib.js",
-  "module": "esm/lib.mjs",
+  "module": "esm-node/lib.mjs",
   "types": "dist/_tsup-dts-rollup.d.ts",
+  "exports": {
+    ".": {
+      "import": "./esm/lib.mjs",
+      "require": "./dist/lib.js",
+      "types": "./dist/_tsup-dts-rollup.d.ts",
+      "deno": "./esm/lib.mjs",
+      "node": "./esm-node/lib.mjs"
+    }
+  },
   "files": [
     "dist",
     "esm",
-    "esm-bunny"
+    "esm-bunny",
+    "esm-node"
   ],
   "scripts": {
     "lint": "eslint src",

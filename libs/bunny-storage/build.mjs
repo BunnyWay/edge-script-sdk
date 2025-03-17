@@ -37,7 +37,7 @@ let noNodeImpl = {
     }))
   },
 }
-// ESM Build
+// ESM Non node Build
 await build({
   minify: false,
   splitting: true,
@@ -57,6 +57,18 @@ await build({
   outDir: "esm-bunny/",
   platform: 'neutral',
   esbuildPlugins: [noNodeImpl],
+  format: "esm",
+  ...sharedConfig,
+})
+
+// ESM Node
+await build({
+  minify: true,
+  splitting: false,
+  sourcemap: false,
+  outDir: "esm-node/",
+  platform: 'neutral',
+  esbuildPlugins: [],
   format: "esm",
   ...sharedConfig,
 })
