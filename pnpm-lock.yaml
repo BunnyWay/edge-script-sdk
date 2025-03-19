@@ -19,14 +19,14 @@ importers:
   example/deno-middleware-http:
     dependencies:
       '@bunny.net/edgescript-sdk':
-        specifier: ^0.11.0
-        version: 0.11.2
+        specifier: ^0.12.0
+        version: link:../../libs/bunny-sdk
 
   example/deno-simple-http-page:
     dependencies:
       '@bunny.net/edgescript-sdk':
-        specifier: ^0.11.0
-        version: 0.11.2
+        specifier: ^0.12.0
+        version: link:../../libs/bunny-sdk
 
   example/middleware-simple-http:
     dependencies:
@@ -423,9 +423,6 @@ packages:
 
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
-
-  '@bunny.net/edgescript-sdk@0.11.2':
-    resolution: {integrity: sha512-TVzniHUf++wkH2AUYRo2StRn7VoAzgCnkxi5AB3q6gq5yfcH31gqmQtbzuGT8Blwr1pH8o7bii8RZk+gPrtXpg==}
 
   '@changesets/apply-release-plan@7.0.4':
     resolution: {integrity: sha512-HLFwhKWayKinWAul0Vj+76jVx1Pc2v55MGPVjZ924Y/ROeSsBMFutv9heHmCUj48lJyRfOTJG5+ar+29FUky/A==}
@@ -3141,11 +3138,6 @@ snapshots:
       to-fast-properties: 2.0.0
 
   '@bcoe/v8-coverage@0.2.3': {}
-
-  '@bunny.net/edgescript-sdk@0.11.2':
-    dependencies:
-      '@hono/node-server': 1.12.0
-      hono: 4.5.5
 
   '@changesets/apply-release-plan@7.0.4':
     dependencies:

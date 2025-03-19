@@ -1,6 +1,6 @@
 {
   "name": "example/deno-middleware-http",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "src/index.ts",
   "type": "module",
   "private": true,
@@ -22,7 +22,7 @@
     "release": "echo \"No release\""
   },
   "dependencies": {
-    "@bunny.net/edgescript-sdk": "^0.11.0"
+    "@bunny.net/edgescript-sdk": "^0.12.0"
   },
   "devDependencies": {}
 }
