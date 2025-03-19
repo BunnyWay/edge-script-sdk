@@ -6,11 +6,11 @@
   "types": "dist/_tsup-dts-rollup.d.ts",
   "exports": {
     ".": {
+      "deno": "./esm/lib.mjs",
+      "node": "./esm-node/lib.mjs",
       "import": "./esm/lib.mjs",
       "require": "./dist/lib.js",
-      "types": "./dist/_tsup-dts-rollup.d.ts",
-      "deno": "./esm/lib.mjs",
-      "node": "./esm-node/lib.mjs"
+      "types": "./dist/_tsup-dts-rollup.d.ts"
     }
   },
   "files": [
