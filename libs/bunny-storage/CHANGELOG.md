@@ -1,5 +1,11 @@
 # @bunny.net/storage-sdk
 
+## 0.3.0
+
+### Minor Changes
+
+- 6199c9e: Properly export ESM for Node & Deno
+
 ## 0.2.2
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # example/deno-middleware-http
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [6199c9e]
+  - @bunny.net/edgescript-sdk@0.12.0
+
 ## 0.1.0
 
 ### Minor Changes

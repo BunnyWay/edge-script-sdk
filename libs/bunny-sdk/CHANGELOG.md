@@ -1,5 +1,11 @@
 # @bunny.net/edgescript-sdk
 
+## 0.12.0
+
+### Minor Changes
+
+- 6199c9e: Properly export ESM for Node & Deno
+
 ## 0.11.5
 
 ### Patch Changes
