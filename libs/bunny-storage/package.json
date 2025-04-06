@@ -7,9 +7,9 @@
   "exports": {
     ".": {
       "deno": "./esm/lib.mjs",
+      "require": "./dist/lib.js",
       "node": "./esm-node/lib.mjs",
       "import": "./esm/lib.mjs",
-      "require": "./dist/lib.js",
       "types": "./dist/_tsup-dts-rollup.d.ts"
     }
   },
