@@ -17,7 +17,8 @@ export const ZoneSchema = z.union([
   z.literal("BR"),
   z.literal("SG"),
   z.literal("JP"),
-  z.literal("SYD")
+  z.literal("SYD"),
+  z.literal("DE")
 ]);
 
 export type Zone = z.infer<typeof ZoneSchema>;
