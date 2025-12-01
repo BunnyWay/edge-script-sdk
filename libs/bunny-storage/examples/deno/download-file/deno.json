@@ -1,0 +1,8 @@
+{
+  "tasks": {
+    "start": "deno run --allow-net --allow-env --allow-write index.ts"
+  },
+  "imports": {
+    "@bunny.net/storage-sdk": "npm:@bunny.net/storage-sdk@latest"
+  }
+}
