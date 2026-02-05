@@ -188,12 +188,6 @@ export async function list(storageZone: StorageZone.StorageZone, path: string): 
 
   const j = await response.json();
 
-  try {
-    StorageFileListing.parse(j);
-  } catch (e) {
-    console.error(e);
-  }
-
   return StorageFileListing.parse(j).map(result => ({
     _tag: "StorageFile",
     guid: result.Guid,
