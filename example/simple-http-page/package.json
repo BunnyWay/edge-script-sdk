@@ -1,6 +1,6 @@
 {
   "name": "example/simple-http-page",
-  "version": "0.2.33",
+  "version": "0.2.34",
   "main": "src/index.ts",
   "type": "module",
   "files": [
