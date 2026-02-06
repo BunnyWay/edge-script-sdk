@@ -3,5 +3,6 @@ packages:
   - 'libs/bunny-storage'
   - 'example/simple-http-page'
   - 'example/deno-simple-http-page'
+  - 'example/deno-simple-http-cache'
   - 'example/deno-middleware-http'
   - 'example/middleware-simple-http'
