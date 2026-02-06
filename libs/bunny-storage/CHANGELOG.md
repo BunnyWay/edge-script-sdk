@@ -1,5 +1,12 @@
 # @bunny.net/storage-sdk
 
+## 0.3.1
+
+### Patch Changes
+
+- 755f117: Remove unseless double parse & console.error log
+- 74cd7e9: Change the order of export to allow importing from commonjs context
+
 ## 0.3.0
 
 ### Minor Changes
