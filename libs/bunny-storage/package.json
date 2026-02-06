@@ -1,15 +1,15 @@
 {
   "name": "@bunny.net/storage-sdk",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "main": "dist/lib.js",
   "module": "esm-node/lib.mjs",
   "types": "dist/_tsup-dts-rollup.d.ts",
   "exports": {
     ".": {
       "deno": "./esm/lib.mjs",
+      "require": "./dist/lib.js",
       "node": "./esm-node/lib.mjs",
       "import": "./esm/lib.mjs",
-      "require": "./dist/lib.js",
       "types": "./dist/_tsup-dts-rollup.d.ts"
     }
   },

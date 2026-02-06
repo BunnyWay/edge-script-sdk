@@ -189,7 +189,7 @@ export type PullZoneHandler = {
  *   });
  * ```
  */
-function servePullZone(options: PullZoneHandlerOptions): PullZoneHandler;
+function servePullZone(options?: PullZoneHandlerOptions): PullZoneHandler;
 function servePullZone(
   listener: { port: number; hostname: string },
   options: PullZoneHandlerOptions,
