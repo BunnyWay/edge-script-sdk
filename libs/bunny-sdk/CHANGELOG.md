@@ -1,5 +1,11 @@
 # @bunny.net/edgescript-sdk
 
+## 0.12.1
+
+### Patch Changes
+
+- d29de11: `servePullZone` should allow to be used without an argument
+
 ## 0.12.0
 
 ### Minor Changes
