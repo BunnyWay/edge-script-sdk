@@ -296,7 +296,10 @@ function servePullZone(
             ) {
               const body = await prevResponse.text();
               headers.delete("content-encoding");
-              response = new Response(body, { headers });
+              response = new Response(body, {
+                ...prevResponse,
+                headers,
+              });
             } else {
               response = new Response(prevResponse.body, {
                 ...prevResponse,
