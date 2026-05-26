@@ -18,6 +18,125 @@ function isRequest(value: unknown) {
   return value instanceof Request;
 }
 
+type MiddlewareLists = {
+  onClientRequest: Array<
+    (ctx: ClientRequestContext) => Promise<Request> | Promise<Response> | undefined
+  >;
+  onOriginRequest: Array<
+    (ctx: OriginRequestContext) => Promise<Request> | Promise<Response> | undefined
+  >;
+  onOriginResponse: Array<
+    (ctx: OriginResponseContext) => Promise<Response> | undefined
+  >;
+  onClientResponse: Array<
+    (ctx: ClientResponseContext) => Promise<Response> | undefined
+  >;
+};
+
+/**
+ * Builds the local-dev pull-zone request handler. Exported for testing.
+ * @internal
+ */
+export function internal_buildPullZoneHandler(
+  originUrl: string,
+  middlewares: MiddlewareLists,
+  runtime: "node" | "deno" | "unknown" = "node",
+): (req: Request) => Promise<Response> {
+  const rebuildForNode = async (
+    source: Response,
+    headers: Headers,
+  ): Promise<Response> => {
+    const init: ResponseInit = {
+      status: source.status,
+      statusText: source.statusText,
+      headers,
+    };
+    if (
+      runtime === "node" &&
+      headers.get("content-type") === "text/html" &&
+      source.body !== null
+    ) {
+      const body = await source.text();
+      headers.delete("content-encoding");
+      return new Response(body, init);
+    }
+    return new Response(source.body, init);
+  };
+
+  return async (req) => {
+    const url = new URL(req.url);
+    const origin_url = new URL(originUrl);
+
+    url.protocol = origin_url.protocol;
+    url.hostname = origin_url.hostname;
+    url.port = origin_url.port;
+
+    let mutableRequest = new Request(url, req as unknown as RequestInit);
+
+    for (const mid of middlewares.onClientRequest) {
+      const reqOrResponse = await mid({ request: mutableRequest });
+      if (isResponse(reqOrResponse)) {
+        return reqOrResponse as Response;
+      }
+      if (isRequest(reqOrResponse)) {
+        mutableRequest = reqOrResponse as Request;
+      }
+    }
+
+    // TODO: Cache layer for local dev to simulate our global cache.
+
+    let originResponse: Response | undefined;
+    let originRequestShortCircuited = false;
+
+    for (const mid of middlewares.onOriginRequest) {
+      const reqOrResponse = await mid({ request: mutableRequest });
+      if (isResponse(reqOrResponse)) {
+        originResponse = reqOrResponse as Response;
+        originRequestShortCircuited = true;
+        break;
+      }
+      if (isRequest(reqOrResponse)) {
+        mutableRequest = reqOrResponse as Request;
+      }
+    }
+
+    if (originResponse === undefined) {
+      originResponse = await fetch(mutableRequest);
+    }
+
+    const headers = new Headers();
+    for (const [key, value] of originResponse.headers.entries()) {
+      headers.set(key, value);
+    }
+
+    let newResponse = await rebuildForNode(originResponse, headers);
+
+    if (!originRequestShortCircuited) {
+      for (const mid of middlewares.onOriginResponse) {
+        const reqOrResponse = await mid({
+          request: mutableRequest,
+          response: newResponse,
+        });
+        if (isResponse(reqOrResponse)) {
+          newResponse = reqOrResponse as Response;
+        }
+      }
+    }
+
+    for (const mid of middlewares.onClientResponse) {
+      const reqOrResponse = await mid({
+        request: mutableRequest,
+        response: newResponse,
+      });
+      if (isResponse(reqOrResponse)) {
+        newResponse = reqOrResponse as Response;
+      }
+    }
+
+    return newResponse;
+  };
+}
+
 /**
  * A handler for HTTP Requests.
  * Consumes a request and return a response.
@@ -129,9 +248,18 @@ export type OriginResponseContext = {
   response: Response;
 };
 
+export type ClientRequestContext = {
+  request: Request;
+};
+
+export type ClientResponseContext = {
+  request: Request;
+  response: Response;
+};
+
 export type PullZoneHandler = {
   /**
-   * Add a Middleware for the requests being processed.
+   * Add a Middleware for the requests being processed before origin fetch.
    */
   onOriginRequest: (
     middleware: (
@@ -140,11 +268,29 @@ export type PullZoneHandler = {
   ) => PullZoneHandler;
 
   /**
-   * Add a Middleware for the response being processed.
+   * Add a Middleware for the response being processed after origin fetch.
    */
   onOriginResponse: (
     middleware: (
       ctx: OriginResponseContext,
+    ) => Promise<Response>,
+  ) => PullZoneHandler;
+
+  /**
+   * Add a Middleware for the requests being processed before cache.
+   */
+  onClientRequest: (
+    middleware: (
+      ctx: ClientRequestContext,
+    ) => Promise<Request> | Promise<Response>,
+  ) => PullZoneHandler;
+
+  /**
+   * Add a Middleware for the response being processed after cache.
+   */
+  onClientResponse: (
+    middleware: (
+      ctx: ClientResponseContext,
     ) => Promise<Response>,
   ) => PullZoneHandler;
 };
@@ -241,6 +387,16 @@ function servePullZone(
       ctx: OriginResponseContext,
     ) => Promise<Response> | undefined
   > = [];
+  const onClientRequestMiddleware: Array<
+    (
+      ctx: ClientRequestContext,
+    ) => Promise<Request> | Promise<Response> | undefined
+  > = [];
+  const onClientResponseMiddleware: Array<
+    (
+      ctx: ClientResponseContext,
+    ) => Promise<Response> | undefined
+  > = [];
 
   const platform = internal_getPlatform();
 
@@ -249,85 +405,22 @@ function servePullZone(
       Bunny.v1.registerMiddlewares({
         onOriginRequest: onOriginRequestMiddleware,
         onOriginResponse: onOriginResponseMiddleware,
+        onClientRequest: onClientRequestMiddleware,
+        onClientResponse: onClientResponseMiddleware,
       });
       break;
     }
     default: {
-      const middlewareHandler: ServerHandler = async (req) => {
-        const url = new URL(req.url);
-        const origin_url = new URL(raw_options.url);
-
-        url.protocol = origin_url.protocol;
-        url.hostname = origin_url.hostname;
-        url.port = origin_url.port;
-
-        let mutableRequest = new Request(
-          url,
-          req as unknown as RequestInit,
-        );
-
-        // Request Middleware
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for (const [_, mid] of onOriginRequestMiddleware.entries()) {
-          const reqOrResponse = await mid({ request: mutableRequest });
-          if (isResponse(reqOrResponse)) {
-            return reqOrResponse;
-          }
-          if (isRequest(reqOrResponse)) {
-            mutableRequest = reqOrResponse;
-          }
-        }
-
-        const prevResponse = await fetch(mutableRequest);
-
-        const headers = new Headers();
-        for (const [key, value] of prevResponse.headers.entries()) {
-          headers.set(key, value);
-        }
-
-        let response: Response;
-
-        // Only for node
-        switch (platform.runtime) {
-          case "node": {
-            if (
-              headers.get("content-type") === "text/html" &&
-              prevResponse.body !== null
-            ) {
-              const body = await prevResponse.text();
-              headers.delete("content-encoding");
-              response = new Response(body, { headers });
-            } else {
-              response = new Response(prevResponse.body, {
-                ...prevResponse,
-                headers,
-              });
-            }
-
-            break;
-          }
-          default: {
-            response = new Response(prevResponse.body, {
-              ...prevResponse,
-              headers,
-            });
-          }
-        }
-
-        // Response Middleware
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for (const [_, mid] of onOriginResponseMiddleware.entries()) {
-          const reqOrResponse = await mid({
-            request: mutableRequest,
-            response,
-          });
-          if (isResponse(reqOrResponse)) {
-            response = reqOrResponse;
-          }
-        }
-
-        return response;
-      };
+      const middlewareHandler = internal_buildPullZoneHandler(
+        raw_options.url,
+        {
+          onClientRequest: onClientRequestMiddleware,
+          onOriginRequest: onOriginRequestMiddleware,
+          onOriginResponse: onOriginResponseMiddleware,
+          onClientResponse: onClientResponseMiddleware,
+        },
+        platform.runtime === "node" ? "node" : "deno",
+      );
 
       serve(raw_listener, middlewareHandler);
     }
@@ -342,6 +435,16 @@ function servePullZone(
 
   pullzoneHandler.onOriginRequest = (middleware) => {
     onOriginRequestMiddleware.push(middleware);
+    return pullzoneHandler;
+  };
+
+  pullzoneHandler.onClientResponse = (middleware) => {
+    onClientResponseMiddleware.push(middleware);
+    return pullzoneHandler;
+  };
+
+  pullzoneHandler.onClientRequest = (middleware) => {
+    onClientRequestMiddleware.push(middleware);
     return pullzoneHandler;
   };
 

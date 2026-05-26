@@ -12,12 +12,18 @@ declare namespace Bunny {
     * Serve PullZone function, to leverage middlewares
     */
     registerMiddlewares: (middlewares: {
+      onClientRequest: Array<(
+        ctx: { request: Request },
+      ) => Promise<Request> | Promise<Response> | undefined>,
+      onClientResponse: Array<(
+        ctx: { request: Request, response: Response },
+      ) => Promise<Request> | Promise<Response> | undefined>,
       onOriginRequest: Array<(
         ctx: { request: Request },
-      ) => Promise<Request> | Promise<Response> | undefined>
+      ) => Promise<Request> | Promise<Response> | undefined>,
       onOriginResponse: Array<(
         ctx: { request: Request, response: Response },
-      ) => Promise<Request> | Promise<Response> | undefined>
+      ) => Promise<Request> | Promise<Response> | undefined>,
     }) => void,
   };
 

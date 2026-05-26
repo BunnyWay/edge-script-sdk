@@ -1,5 +1,11 @@
 # @bunny.net/edgescript-sdk
 
+## 0.13.0-rc.0
+
+### Minor Changes
+
+- Adding onClient hooks for middleware
+
 ## 0.12.1
 
 ### Patch Changes
