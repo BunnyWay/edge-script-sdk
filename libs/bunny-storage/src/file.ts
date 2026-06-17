@@ -218,6 +218,10 @@ export type RemoveOptions = {
    *
    * Defaults to `false` to preserve backwards compatibility: by default a
    * failed request still resolves to `false`.
+   *
+   * @deprecated The opt-in is temporary. In v1 throwing becomes the default
+   * behaviour and this option (along with the `boolean` return) will be
+   * removed. Adopt `{ throwOnError: true }` now to ease the migration.
    */
   throwOnError?: boolean;
 };
