@@ -209,16 +209,42 @@ export async function list(storageZone: StorageZone.StorageZone, path: string): 
 }
 
 /**
+ * Options for the deletion operations ([remove], [removeDirectory]).
+ */
+export type RemoveOptions = {
+  /**
+   * When `true`, the operation throws on a failed request (mirroring the
+   * behaviour of [upload] and [download]) instead of resolving to `false`.
+   *
+   * Defaults to `false` to preserve backwards compatibility: by default a
+   * failed request still resolves to `false`.
+   *
+   * @deprecated The opt-in is temporary. In v1 throwing becomes the default
+   * behaviour and this option (along with the `boolean` return) will be
+   * removed. Adopt `{ throwOnError: true }` now to ease the migration.
+   */
+  throwOnError?: boolean;
+};
+
+/**
  * Remove files and folders in a directory from a [StorageZone].
  *
- * @throws
+ * By default a failed request resolves to `false`. Pass
+ * `{ throwOnError: true }` to instead throw on failure, mirroring [upload]
+ * and [download].
+ *
+ * @throws When the request fails and `options.throwOnError` is `true`.
  */
-export async function remove(storageZone: StorageZone.StorageZone, path: string): Promise<boolean> {
+export async function remove(storageZone: StorageZone.StorageZone, path: string, options?: RemoveOptions): Promise<boolean> {
   const url = StorageZone.addr(storageZone);
   url.pathname = `${url.pathname}${path}`;
 
   const [auth_header, key] = StorageZone.key(storageZone);
   const response = await fetch(url, { method: "DELETE", headers: { [auth_header]: key } });
+
+  if (!response.ok && options?.throwOnError) {
+    throw statusCodeToException(storageZone, response.status, path);
+  }
 
   return response.ok;
 }
@@ -241,14 +267,22 @@ export async function createDirectory(storageZone: StorageZone.StorageZone, path
 /**
  * Remove recursively a Directory in the [StorageZone].
  *
- * @throws
+ * By default a failed request resolves to `false`. Pass
+ * `{ throwOnError: true }` to instead throw on failure, mirroring [upload]
+ * and [download].
+ *
+ * @throws When the request fails and `options.throwOnError` is `true`.
  */
-export async function removeDirectory(storageZone: StorageZone.StorageZone, path: string): Promise<boolean> {
+export async function removeDirectory(storageZone: StorageZone.StorageZone, path: string, options?: RemoveOptions): Promise<boolean> {
   const url = StorageZone.addr(storageZone);
   const directory_path = path.endsWith("/") ? path : `${path}/`;
   url.pathname = `${url.pathname}${directory_path}`;
   const [auth_header, key] = StorageZone.key(storageZone);
   const response = await fetch(url, { method: "DELETE", headers: { [auth_header]: key } });
+
+  if (!response.ok && options?.throwOnError) {
+    throw statusCodeToException(storageZone, response.status, path);
+  }
 
   return response.ok;
 }
