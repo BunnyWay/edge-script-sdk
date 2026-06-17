@@ -136,19 +136,7 @@ export async function get(storageZone: StorageZone.StorageZone, path: string): P
     throw statusCodeToException(storageZone, response.status, path);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rawData: { LastChanged?: string, DateCreated?: string } = await response.json() as unknown as any;
-  const processedData = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ...rawData as unknown as any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    LastChanged: new Date(rawData.LastChanged as unknown as any),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    DateCreated: new Date(rawData.DateCreated as unknown as any)
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result = StorageFileSchemaDescribe.parse(processedData as unknown as any);
+  const result = StorageFileSchemaDescribe.parse(await response.json());
 
   return ({
     _tag: "StorageFile",
@@ -307,8 +295,6 @@ export type UploadOptions = {
  * @throws
  */
 
-export async function upload(storageZone: StorageZone.StorageZone, path: string, stream: ReadableStream<Uint8Array>, options?: UploadOptions): Promise<boolean>;
-export async function upload(storageZone: StorageZone.StorageZone, path: string, stream: ReadableStream<Uint8Array>): Promise<boolean>;
 export async function upload(storageZone: StorageZone.StorageZone, path: string, stream: ReadableStream<Uint8Array>, options?: UploadOptions): Promise<boolean> {
   const url = StorageZone.addr(storageZone);
   url.pathname = `${url.pathname}${path}`;
@@ -319,8 +305,8 @@ export async function upload(storageZone: StorageZone.StorageZone, path: string,
     'Content-Type': "application/octet-stream"
   };
 
-  if (options?.contentType) headers["Override-Content-Type"] = options!.contentType!;
-  if (options?.sha256Checksum) headers["Checksum"] = options!.sha256Checksum!;
+  if (options?.contentType) headers["Override-Content-Type"] = options.contentType;
+  if (options?.sha256Checksum) headers["Checksum"] = options.sha256Checksum;
 
   const response = await fetch(url, { method: "PUT", headers, body: stream, duplex: "half" });
 
