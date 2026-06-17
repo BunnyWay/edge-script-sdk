@@ -47,6 +47,7 @@
     "@typescript-eslint/eslint-plugin": "^8.0.1",
     "@typescript-eslint/parser": "^8.0.1",
     "@vercel/ncc": "^0.38.1",
+    "dotenv": "^16.4.7",
     "esbuild": "0.23.0",
     "eslint": "^9.8.0",
     "globals": "^15.9.0",
@@ -61,7 +62,6 @@
     "ulid": "^2.3.0"
   },
   "dependencies": {
-    "dotenv": "^16.4.7",
     "zod": "^3.24.2"
   }
 }
