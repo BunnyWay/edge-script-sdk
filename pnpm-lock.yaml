@@ -195,9 +195,6 @@ importers:
 
   libs/bunny-storage:
     dependencies:
-      dotenv:
-        specifier: ^16.4.7
-        version: 16.4.7
       zod:
         specifier: ^3.24.2
         version: 3.24.2
@@ -226,6 +223,9 @@ importers:
       '@vercel/ncc':
         specifier: ^0.38.1
         version: 0.38.1
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.4.7
       esbuild:
         specifier: 0.23.0
         version: 0.23.0

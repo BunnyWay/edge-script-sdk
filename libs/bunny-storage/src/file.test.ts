@@ -253,6 +253,28 @@ describe('StorageFile operations', () => {
 
       expect(result).toBe(true);
     });
+
+    it('should resolve to false on failure by default', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404
+      });
+
+      const result = await File.removeDirectory(mockStorageZone, '/test/missing-folder');
+
+      expect(result).toBe(false);
+    });
+
+    it('should throw on failure when throwOnError is set', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404
+      });
+
+      await expect(
+        File.removeDirectory(mockStorageZone, '/test/missing-folder', { throwOnError: true })
+      ).rejects.toThrow('File not found');
+    });
   });
 
   describe('remove function', () => {
@@ -274,6 +296,28 @@ describe('StorageFile operations', () => {
       );
 
       expect(result).toBe(true);
+    });
+
+    it('should resolve to false on failure by default', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404
+      });
+
+      const result = await File.remove(mockStorageZone, '/test/missing.txt');
+
+      expect(result).toBe(false);
+    });
+
+    it('should throw on failure when throwOnError is set', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404
+      });
+
+      await expect(
+        File.remove(mockStorageZone, '/test/missing.txt', { throwOnError: true })
+      ).rejects.toThrow('File not found');
     });
   });
 });

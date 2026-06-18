@@ -23,6 +23,16 @@ export const ZoneSchema = z.union([
 export type Zone = z.infer<typeof ZoneSchema>;
 
 /**
+ * The result of downloading a [StorageFile]: the body as a stream, the raw
+ * [Response], and the content length when the server reports it.
+ */
+export type FileDownload = {
+  stream: ReadableStream<Uint8Array>;
+  response: Response;
+  length?: number;
+};
+
+/**
  * A [StorageFile] stored in a Storage Zone.
  *
  * Can be a Folder (fake folder)
@@ -91,18 +101,45 @@ export type StorageFile = {
    * have the stream which will fetch the content of the body of the file you
    * want.
    */
-  data: () => Promise<{
-    stream: ReadableStream<Uint8Array>;
-    response: Response;
-    length?: number;
-  }>,
+  data: () => Promise<FileDownload>,
 };
+
+/**
+ * Build a [StorageFile] from a parsed API record.
+ *
+ * `downloadPath` is the path used by `data()` to fetch the body: [get] passes
+ * the requested path, while [list] passes each entry's own `Path`.
+ */
+function toStorageFile(
+  storageZone: StorageZone.StorageZone,
+  result: z.infer<typeof StorageFileSchemaDescribe>,
+  downloadPath: string,
+): StorageFile {
+  return {
+    _tag: "StorageFile",
+    guid: result.Guid,
+    userId: result.UserId,
+    lastChanged: result.LastChanged,
+    dateCreated: result.DateCreated,
+    storageZoneName: result.StorageZoneName,
+    path: result.Path,
+    objectName: result.ObjectName,
+    length: result.Length,
+    storageZoneId: result.StorageZoneId,
+    isDirectory: result.IsDirectory,
+    serverId: result.ServerId,
+    checksum: result.Checksum,
+    replicatedZones: result.ReplicatedZones,
+    contentType: result.ContentType,
+    data: () => download(storageZone, downloadPath),
+  };
+}
 
 /**
  * Fetch the metadata of a file from a [StorageZone], to have the data of this
  * file, you'll need to download it.
  *
- * You can download the content of a [StorageFile] by awaitng the `data()`
+ * You can download the content of a [StorageFile] by awaiting the `data()`
  * function of this file.
  *
  * @throws
@@ -123,7 +160,7 @@ export type StorageFile = {
  *   // Here the body will be in the `stream` file, you can collect it in whatever
  *   // way you need.
  *   // The response will contain the rest of the metadata available.
- *   let promise_to_fetch_the_file: { stream: ReadableStream<Uint8Array>; response: Response; length?: number; } = await file.data();
+ *   let promise_to_fetch_the_file: BunnyStorageSDK.file.FileDownload = await file.data();
  * ```
  */
 export async function get(storageZone: StorageZone.StorageZone, path: string): Promise<StorageFile> {
@@ -136,38 +173,9 @@ export async function get(storageZone: StorageZone.StorageZone, path: string): P
     throw statusCodeToException(storageZone, response.status, path);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rawData: { LastChanged?: string, DateCreated?: string } = await response.json() as unknown as any;
-  const processedData = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ...rawData as unknown as any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    LastChanged: new Date(rawData.LastChanged as unknown as any),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    DateCreated: new Date(rawData.DateCreated as unknown as any)
-  };
+  const result = StorageFileSchemaDescribe.parse(await response.json());
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result = StorageFileSchemaDescribe.parse(processedData as unknown as any);
-
-  return ({
-    _tag: "StorageFile",
-    guid: result.Guid,
-    userId: result.UserId,
-    lastChanged: result.LastChanged,
-    dateCreated: result.DateCreated,
-    storageZoneName: result.StorageZoneName,
-    path: result.Path,
-    objectName: result.ObjectName,
-    length: result.Length,
-    storageZoneId: result.StorageZoneId,
-    isDirectory: result.IsDirectory,
-    serverId: result.ServerId,
-    checksum: result.Checksum,
-    replicatedZones: result.ReplicatedZones,
-    contentType: result.ContentType,
-    data: () => download(storageZone, path),
-  })
+  return toStorageFile(storageZone, result, path);
 }
 
 /**
@@ -188,37 +196,48 @@ export async function list(storageZone: StorageZone.StorageZone, path: string): 
 
   const j = await response.json();
 
-  return StorageFileListing.parse(j).map(result => ({
-    _tag: "StorageFile",
-    guid: result.Guid,
-    userId: result.UserId,
-    lastChanged: result.LastChanged,
-    dateCreated: result.DateCreated,
-    storageZoneName: result.StorageZoneName,
-    path: result.Path,
-    objectName: result.ObjectName,
-    length: result.Length,
-    storageZoneId: result.StorageZoneId,
-    isDirectory: result.IsDirectory,
-    serverId: result.ServerId,
-    checksum: result.Checksum,
-    replicatedZones: result.ReplicatedZones,
-    contentType: result.ContentType,
-    data: () => download(storageZone, result.Path),
-  }));
+  return StorageFileListing.parse(j).map(result =>
+    toStorageFile(storageZone, result, result.Path),
+  );
 }
+
+/**
+ * Options for the deletion operations ([remove], [removeDirectory]).
+ */
+export type RemoveOptions = {
+  /**
+   * When `true`, the operation throws on a failed request (mirroring the
+   * behaviour of [upload] and [download]) instead of resolving to `false`.
+   *
+   * Defaults to `false` to preserve backwards compatibility: by default a
+   * failed request still resolves to `false`.
+   *
+   * @deprecated The opt-in is temporary. In v1 throwing becomes the default
+   * behaviour and this option (along with the `boolean` return) will be
+   * removed. Adopt `{ throwOnError: true }` now to ease the migration.
+   */
+  throwOnError?: boolean;
+};
 
 /**
  * Remove files and folders in a directory from a [StorageZone].
  *
- * @throws
+ * By default a failed request resolves to `false`. Pass
+ * `{ throwOnError: true }` to instead throw on failure, mirroring [upload]
+ * and [download].
+ *
+ * @throws When the request fails and `options.throwOnError` is `true`.
  */
-export async function remove(storageZone: StorageZone.StorageZone, path: string): Promise<boolean> {
+export async function remove(storageZone: StorageZone.StorageZone, path: string, options?: RemoveOptions): Promise<boolean> {
   const url = StorageZone.addr(storageZone);
   url.pathname = `${url.pathname}${path}`;
 
   const [auth_header, key] = StorageZone.key(storageZone);
   const response = await fetch(url, { method: "DELETE", headers: { [auth_header]: key } });
+
+  if (!response.ok && options?.throwOnError) {
+    throw statusCodeToException(storageZone, response.status, path);
+  }
 
   return response.ok;
 }
@@ -241,14 +260,22 @@ export async function createDirectory(storageZone: StorageZone.StorageZone, path
 /**
  * Remove recursively a Directory in the [StorageZone].
  *
- * @throws
+ * By default a failed request resolves to `false`. Pass
+ * `{ throwOnError: true }` to instead throw on failure, mirroring [upload]
+ * and [download].
+ *
+ * @throws When the request fails and `options.throwOnError` is `true`.
  */
-export async function removeDirectory(storageZone: StorageZone.StorageZone, path: string): Promise<boolean> {
+export async function removeDirectory(storageZone: StorageZone.StorageZone, path: string, options?: RemoveOptions): Promise<boolean> {
   const url = StorageZone.addr(storageZone);
   const directory_path = path.endsWith("/") ? path : `${path}/`;
   url.pathname = `${url.pathname}${directory_path}`;
   const [auth_header, key] = StorageZone.key(storageZone);
   const response = await fetch(url, { method: "DELETE", headers: { [auth_header]: key } });
+
+  if (!response.ok && options?.throwOnError) {
+    throw statusCodeToException(storageZone, response.status, path);
+  }
 
   return response.ok;
 }
@@ -273,8 +300,6 @@ export type UploadOptions = {
  * @throws
  */
 
-export async function upload(storageZone: StorageZone.StorageZone, path: string, stream: ReadableStream<Uint8Array>, options?: UploadOptions): Promise<boolean>;
-export async function upload(storageZone: StorageZone.StorageZone, path: string, stream: ReadableStream<Uint8Array>): Promise<boolean>;
 export async function upload(storageZone: StorageZone.StorageZone, path: string, stream: ReadableStream<Uint8Array>, options?: UploadOptions): Promise<boolean> {
   const url = StorageZone.addr(storageZone);
   url.pathname = `${url.pathname}${path}`;
@@ -285,8 +310,8 @@ export async function upload(storageZone: StorageZone.StorageZone, path: string,
     'Content-Type': "application/octet-stream"
   };
 
-  if (options?.contentType) headers["Override-Content-Type"] = options!.contentType!;
-  if (options?.sha256Checksum) headers["Checksum"] = options!.sha256Checksum!;
+  if (options?.contentType) headers["Override-Content-Type"] = options.contentType;
+  if (options?.sha256Checksum) headers["Checksum"] = options.sha256Checksum;
 
   const response = await fetch(url, { method: "PUT", headers, body: stream, duplex: "half" });
 
@@ -298,15 +323,11 @@ export async function upload(storageZone: StorageZone.StorageZone, path: string,
 }
 
 /**
- * Download a Stream to a [StorageZone].
+ * Download a Stream from a [StorageZone].
  *
  * @throws
  */
-export async function download(storageZone: StorageZone.StorageZone, path: string): Promise<{
-  stream: ReadableStream<Uint8Array>;
-  response: Response;
-  length?: number;
-}> {
+export async function download(storageZone: StorageZone.StorageZone, path: string): Promise<FileDownload> {
   const url = StorageZone.addr(storageZone);
   url.pathname = `${url.pathname}${path}`;
 
@@ -338,7 +359,7 @@ function statusCodeToException(storageZone: StorageZone.StorageZone, status: num
     case 404:
       return new Error(`File not found: ${path}`);
     case 400:
-      return new Error("Unable to upload file. Either invalid path specified, either provided checksum invalid");
+      return new Error(`Bad request for ${path}: invalid path or checksum.`);
     case 401:
       return new Error(
         `Unauthorized access to storage zone: ${StorageZone.name(storageZone)}`,
