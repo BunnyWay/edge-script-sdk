@@ -7,7 +7,7 @@ export type StorageZone = {
   name: string,
 
   // If this is set up, the reading will not goes into the API but it'll goes to
-  // the associated PZ, it'll increase greatly the scalibility of the read & the
+  // the associated PZ, it'll increase greatly the scalability of the read & the
   // performance.
   // Especially if caching is activated on a PullZone.
   // optimized_reading_pz: null,
@@ -32,7 +32,7 @@ export function name(value: StorageZone): string {
 }
 
 /**
- * Give the associated Authentification header with it's content.
+ * Give the associated Authentication header with its content.
  */
 export function key(value: StorageZone): [string, string] {
   return ["AccessKey", value.accessKey]
