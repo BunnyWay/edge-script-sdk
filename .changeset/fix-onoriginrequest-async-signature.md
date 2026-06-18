@@ -1,5 +1,5 @@
 ---
-"@bunny.net/edgescript-sdk": minor
+"@bunny.net/edgescript-sdk": patch
 ---
 
 `onOriginRequest`'s old `Promise<Request> | Promise<Response>` signature
