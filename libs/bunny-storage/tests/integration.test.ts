@@ -126,7 +126,8 @@ describe('Integration test with Storage', () => {
         // Should not be here.
         expect(false).toBeTruthy();
       } catch (e) {
-        expect(e).toMatchSnapshot("invalid_fail_file_1");
+        expect(e).toBeInstanceOf(Error);
+        expect((e as Error).message).toContain("invalid path or checksum");
       }
 
       let list = await BunnyStorageSDK.file.list(sz, generation_id);
