@@ -136,7 +136,7 @@ export type PullZoneHandler = {
   onOriginRequest: (
     middleware: (
       ctx: OriginRequestContext,
-    ) => Promise<Request> | Promise<Response>,
+    ) => Request | Response | Promise<Request | Response>,
   ) => PullZoneHandler;
 
   /**
@@ -145,7 +145,7 @@ export type PullZoneHandler = {
   onOriginResponse: (
     middleware: (
       ctx: OriginResponseContext,
-    ) => Promise<Response>,
+    ) => Response | Promise<Response>,
   ) => PullZoneHandler;
 };
 
@@ -234,12 +234,12 @@ function servePullZone(
   const onOriginRequestMiddleware: Array<
     (
       ctx: OriginRequestContext,
-    ) => Promise<Request> | Promise<Response> | undefined
+    ) => Request | Response | Promise<Request | Response> | undefined
   > = [];
   const onOriginResponseMiddleware: Array<
     (
       ctx: OriginResponseContext,
-    ) => Promise<Response> | undefined
+    ) => Response | Promise<Response> | undefined
   > = [];
 
   const platform = internal_getPlatform();
