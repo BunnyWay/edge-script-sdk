@@ -1,5 +1,15 @@
 # @bunny.net/storage-sdk
 
+## 0.3.2
+
+### Patch Changes
+
+- 74e65d7: simplify internal get() date handling and upload() sig
+- 8968009: move dotenv to devDependencies
+- 27ffeca: handle throw on error for remove/removeDirectory
+- d129a9d: simplify file internals: share StorageFile construction between get/list and add a named FileDownload type
+- d129a9d: fix misleading 400 error message that mentioned uploading on every operation (get/list/download/remove)
+
 ## 0.3.1
 
 ### Patch Changes
