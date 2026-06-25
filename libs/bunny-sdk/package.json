@@ -11,6 +11,9 @@
       "import": "./esm/lib.mjs",
       "require": "./dist/lib.js",
       "types": "./dist/_tsup-dts-rollup.d.ts"
+    },
+    "./dns": {
+      "types": "./dist/dns.d.ts"
     }
   },
   "files": [

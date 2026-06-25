@@ -1,6 +1,4 @@
-import path from 'node:path'
-import { readFile } from 'fs/promises';
-import { defineConfig } from 'tsup'
+import { readFile, copyFile } from 'fs/promises';
 import { build } from 'tsup'
 
 const pkg = JSON.parse(await readFile(new URL('./package.json', import.meta.url)));
@@ -72,3 +70,8 @@ await build({
   format: "esm",
   ...sharedConfig,
 })
+
+await copyFile(
+  new URL('./src/dns.d.ts', import.meta.url),
+  new URL('./dist/dns.d.ts', import.meta.url),
+)
