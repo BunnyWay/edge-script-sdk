@@ -1,0 +1,15 @@
+{
+  "mode": "pre",
+  "tag": "rc",
+  "initialVersions": {
+    "example/deno-middleware-http": "0.1.1",
+    "example/deno-simple-http-page": "0.2.22",
+    "example/middleware-simple-http": "0.1.7",
+    "example/simple-http-page": "0.2.34",
+    "@bunny.net/edgescript-sdk": "0.12.1",
+    "@bunny.net/storage-sdk": "0.3.1"
+  },
+  "changesets": [
+    "serious-kids-exist"
+  ]
+}
