@@ -5,3 +5,5 @@ packages:
   - 'example/deno-simple-http-page'
   - 'example/deno-middleware-http'
   - 'example/middleware-simple-http'
+allowBuilds:
+  esbuild: true
